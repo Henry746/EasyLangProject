@@ -3,6 +3,8 @@ package ph.edu.cksc.college.translator;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,39 +60,77 @@ public class ParserTest {
 
     @Test
     public void testAssignToIndexedArray() throws Exception {
-        throw new Exception("Not yet implemented: ar[1]=2");
+        EasyLangParser parser = getParser("ar[1]=2");
+        EasyLangParser.AssignContext tree = parser.assign();
+        assertEquals(6, tree.getChildCount());
+        // no need actually because it's already an assign tree
+        assertEquals(EasyLangParser.RULE_assign, tree.getRuleIndex());
+        // we cannot use getChild because only getText is available and no token info
+        assertEquals(EasyLangLexer.ID, tree.ID().getSymbol().getType());
+        assertEquals("ar", tree.ID().getText());
+        assertEquals("[", tree.getChild(1).getText());
+        assertEquals("]", tree.getChild(3).getText());
+        assertEquals("=", tree.getChild(4).getText());
+        // System.out.println(tree.expr().getClass().getCanonicalName());
+        assertEquals(tree.expr().size(), 2);
+        EasyLangParser.INT_EXPRContext term = (EasyLangParser.INT_EXPRContext) tree.expr(0);
+        assertEquals("1", term.getText());
+        term = (EasyLangParser.INT_EXPRContext) tree.expr(1);
+        assertEquals("2", term.getText());
     }
 
     @Test
     public void testAssignIncrement() throws Exception {
-        throw new Exception("Not yet implemented: inc+=3");
+        EasyLangParser parser = getParser("inc+=3");
+        EasyLangParser.AssignContext tree = parser.assign();
+        assertEquals(3, tree.getChildCount());
+        // no need actually because it's already an assign tree
+        assertEquals(EasyLangParser.RULE_assign, tree.getRuleIndex());
+        // we cannot use getChild because only getText is available and no token info
+        assertEquals(EasyLangLexer.ID, tree.ID().getSymbol().getType());
+        assertEquals("inc", tree.ID().getText());
+        assertEquals("+=", tree.getChild(1).getText());
+        // System.out.println(tree.expr().getClass().getCanonicalName());
+        assertEquals(tree.expr().size(), 1);
+        EasyLangParser.INT_EXPRContext term = (EasyLangParser.INT_EXPRContext) tree.expr(0);
+        assertEquals("3", term.getText());
     }
 
     @Test
     public void testAssignMultiply() throws Exception {
-        throw new Exception("Not yet implemented: mul*=4");
-    }
-
-    /*@Test
-    public void testArray() throws IOException {
-        EasyLangParser parser = getParser("jomin={1}");
+        EasyLangParser parser = getParser("mul*=4");
         EasyLangParser.AssignContext tree = parser.assign();
         assertEquals(3, tree.getChildCount());
+        // no need actually because it's already an assign tree
+        assertEquals(EasyLangParser.RULE_assign, tree.getRuleIndex());
         // we cannot use getChild because only getText is available and no token info
         assertEquals(EasyLangLexer.ID, tree.ID().getSymbol().getType());
-        assertEquals("jomin", tree.ID().getText());
-        assertEquals(EasyLangParser.RULE_assign, tree.getRuleIndex());
+        assertEquals("mul", tree.ID().getText());
+        assertEquals("*=", tree.getChild(1).getText());
+        // System.out.println(tree.expr().getClass().getCanonicalName());
+        assertEquals(tree.expr().size(), 1);
+        EasyLangParser.INT_EXPRContext term = (EasyLangParser.INT_EXPRContext) tree.expr(0);
+        assertEquals("4", term.getText());
+    }
 
-        assertEquals(true, tree.expr() instanceof ArrayList);
-        EasyLangParser.ARRAY_EXPRContext array = (EasyLangParser.ARRAY_EXPRContext) tree.expr(0);
-        assertEquals(3, array.getChildCount());
+    @Test
+    public void testExpressionArray() throws IOException {
+        EasyLangParser parser = getParser("{1,2}");
+        EasyLangParser.ExprContext tree = parser.expr();
+        assertEquals(5, tree.getChildCount());
+        // we cannot use getChild because only getText is available and no token info
+        assertEquals("ARRAY_EXPRContext", tree.getClass().getSimpleName());
+        EasyLangParser.ARRAY_EXPRContext array = (EasyLangParser.ARRAY_EXPRContext) tree;
         List<EasyLangParser.ExprContext> list = array.expr();
-        assertEquals(1, list.size());
+        assertEquals(2, list.size());
         EasyLangParser.INT_EXPRContext term = (EasyLangParser.INT_EXPRContext) array.expr(0);
         assertEquals(EasyLangLexer.INT, term.INT().getSymbol().getType());
         assertEquals("1", term.getText());
+        term = (EasyLangParser.INT_EXPRContext) array.expr(1);
+        assertEquals(EasyLangLexer.INT, term.INT().getSymbol().getType());
+        assertEquals("2", term.getText());
     }
-Assignment
+//Assignment
     @Test
     public void testIfNoElse() throws IOException {
         EasyLangParser parser = getParser("if jomin>1{a=1}");
@@ -98,68 +138,67 @@ Assignment
         //System.out.println(tree.toStringTree());
         assertEquals(3, tree.getChildCount());
         // we cannot use getChild because only getText is available and no token info
-        assertEquals(true, tree instanceof IF_STMTContext);
-        EasyLangParser.ExprContext expr = ((IF_STMTContext) tree).expr();
-        assertEquals(true, expr instanceof REL_EXPRContext);
+        assertEquals("IF_STMTContext", tree.getClass().getSimpleName());
+        EasyLangParser.ExprContext expr = ((EasyLangParser.IF_STMTContext) tree).expr();
+        assertEquals("REL_EXPRContext", expr.getClass().getSimpleName());
         assertEquals("jomin>1", expr.getText());
-        
-        List<StatementsContext> list = ((IF_STMTContext) tree).statements();
+
+        List<EasyLangParser.StatementsContext> list = ((EasyLangParser.IF_STMTContext) tree).statements();
         assertEquals(1, list.size());
         assertEquals("{a=1}", list.get(0).getText());
+
+
     }
-    
+
     @Test
     public void testSwitch() throws IOException {
-        EasyLangParser parser = getParser("switch j{case 1:{write 2}}");
+        EasyLangParser parser = getParser("switch j{case 1:{output 2}}");
         EasyLangParser.StatementContext tree = parser.statement();
         //System.out.println(tree.toStringTree());
-        assertEquals(5, tree.getChildCount());
+        assertEquals(8, tree.getChildCount());
         // we cannot use getChild because only getText is available and no token info
-        assertEquals(true, tree instanceof SWITCH_STMTContext);
-        EasyLangParser.ExprContext expr = ((SWITCH_STMTContext) tree).expr();
-        assertEquals(true, expr instanceof TERM_EXPRContext);
-        assertEquals("j", expr.getText());
-        
-        List<EasyLangParser.CaseblockContext> list = ((SWITCH_STMTContext) tree).caseblock();
-        assertEquals(1, list.size());
-        assertEquals("case1:{write2}", list.get(0).getText());
-        EasyLangParser.CaseblockContext block = list.get(0);
-        expr = block.expr().get(0);
-        assertEquals(true, expr instanceof TERM_EXPRContext);
-        assertEquals("1", expr.getText());
+        assertEquals("SWITCH_STMTContext", tree.getClass().getSimpleName());
+        List<EasyLangParser.ExprContext> expr = ((EasyLangParser.SWITCH_STMTContext) tree).expr();
+        assertEquals("ID_EXPRContext", expr.get(0).getClass().getSimpleName());
+        assertEquals("j", expr.get(0).getText());
 
-        EasyLangParser.StatementsContext stmts = block.statements();
-        assertEquals("{write2}", stmts.getText());
+        EasyLangParser.ExprContext block = expr.get(1);
+        assertEquals("INT_EXPRContext", block.getClass().getSimpleName());
+        assertEquals("1", expr.get(1).getText());
+
+        List<EasyLangParser.StatementsContext> stmts = ((EasyLangParser.SWITCH_STMTContext) tree).statements();
+        assertEquals(1, stmts.size());
+        assertEquals("{output2}", stmts.get(0).getText());
     }
-    
+
     @Test
     public void testReadOne() throws IOException {
-        EasyLangParser parser = getParser("read jomin");
+        EasyLangParser parser = getParser("input jomin");
         EasyLangParser.StatementContext tree = parser.statement();
         assertEquals(2, tree.getChildCount());
         // we cannot use getChild because only getText is available and no token info
-        assertEquals(true, tree instanceof READ_STMTContext);
-        List<TerminalNode> list = ((READ_STMTContext) tree).ID();
+        assertEquals("READ_STMTContext", tree.getClass().getSimpleName());
+        List<TerminalNode> list = ((EasyLangParser.READ_STMTContext) tree).ID();
         assertEquals(1, list.size());
         assertEquals(EasyLangLexer.ID, list.get(0).getSymbol().getType());
         assertEquals("jomin", list.get(0).getText());
     }
-    
+
     @Test
     public void testReadTwo() throws IOException {
-        EasyLangParser parser = getParser("read jomin, yu");
+        EasyLangParser parser = getParser("input jomin, yu");
         EasyLangParser.StatementContext tree = parser.statement();
         assertEquals(4, tree.getChildCount());
         // we cannot use getChild because only getText is available and no token info
-        assertEquals(true, tree instanceof READ_STMTContext);
-        List<TerminalNode> list = ((READ_STMTContext) tree).ID();
+        assertEquals("READ_STMTContext", tree.getClass().getSimpleName());
+        List<TerminalNode> list = ((EasyLangParser.READ_STMTContext) tree).ID();
         assertEquals(2, list.size());
         assertEquals(EasyLangLexer.ID, list.get(0).getSymbol().getType());
         assertEquals("jomin", list.get(0).getText());
         assertEquals(EasyLangLexer.ID, list.get(1).getSymbol().getType());
         assertEquals("yu", list.get(1).getText());
     }
-    */
+    //up to here
     @Test
     public void testWriteOne() throws IOException {
         EasyLangParser parser = getParser("output jomin");
@@ -269,7 +308,7 @@ Assignment
     public void testProgram() throws IOException {
         EasyLangParser parser = getParser("program p{output 3}");
         EasyLangParser.ProgramContext tree = parser.program();
-        System.out.println(tree.toStringTree());
+        //System.out.println(tree.toStringTree());
         assertEquals(3, tree.getChildCount());
         // we cannot use getChild because only getText is available and no token info
         assertEquals(EasyLangLexer.ID, tree.ID().getSymbol().getType());
