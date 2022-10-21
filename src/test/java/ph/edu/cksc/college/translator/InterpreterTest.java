@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -147,6 +149,61 @@ public class InterpreterTest {
     }
 
     @Test
+    public void testAssignIndexedArrayPlus() throws IOException {
+        List<Object> array = new ArrayList<>();
+        array.add(143);
+        array.add("string");
+        visitor.getMemory().put("marvin", array);
+        EasyLangParser parser = getParser("marvin[0]+=2");
+        ParseTree tree = parser.assign();
+        visitor.visit(tree);
+        array = (List<Object>)  visitor.getMemory().get("marvin");
+        int value = (int) array.get(0);
+        assertEquals(145, value);
+    }
+
+    @Test
+    public void testAssignIndexedArrayConcat() throws IOException {
+        List<Object> array = new ArrayList<>();
+        array.add(143);
+        array.add("string");
+        visitor.getMemory().put("marvin", array);
+        EasyLangParser parser = getParser("marvin[1]+=2");
+        ParseTree tree = parser.assign();
+        visitor.visit(tree);
+        array = (List<Object>)  visitor.getMemory().get("marvin");
+        String value = (String) array.get(1);
+        assertEquals("string2", value);
+    }
+
+    @Test
+    public void testSignInteger() throws IOException {
+        EasyLangParser parser = getParser("-143");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
+        assertTrue(result instanceof Integer);
+        assertEquals(-143, result);
+    }
+
+    @Test
+    public void testSignFloat() throws IOException {
+        EasyLangParser parser = getParser("-143.44");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
+        assertTrue(result instanceof Float);
+        assertEquals(-143.44f, result);
+    }
+
+    @Test
+    public void testSignMultipleFloat() throws IOException {
+        EasyLangParser parser = getParser("----143.44");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
+        assertTrue(result instanceof Float);
+        assertEquals(143.44f, result);
+    }
+
+    @Test
     public void testAddInteger() throws IOException {
         EasyLangParser parser = getParser("143+2");
         ParseTree tree = parser.expr();
@@ -217,6 +274,16 @@ public class InterpreterTest {
         assertTrue(result instanceof Boolean);
         assertTrue((Boolean) result);
 
+    }
+
+    @Test
+    public void testGreaterThanFalse() throws IOException {
+        EasyLangParser parser = getParser("1>=10");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
+        assertTrue(result instanceof Boolean);
+        assertTrue((Boolean) result);
+
         parser = getParser("1>=10");
         tree = parser.expr();
         result = visitor.visit(tree);
@@ -232,12 +299,19 @@ public class InterpreterTest {
         assertTrue(result instanceof Boolean);
         assertTrue((Boolean) result);
 
-        parser = getParser("1>=10 && 10<=20");
-        tree = parser.expr();
-        result = visitor.visit(tree);
+    }
+
+    @Test
+    public void testAndFalse() throws IOException {
+        EasyLangParser parser = getParser("1>=10 && 10<=20");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
         assertTrue(result instanceof Boolean);
         assertFalse((Boolean) result);
+
     }
+
+    //testOR and testOrFalse
 
     @Test
     public void testOutput() throws IOException {

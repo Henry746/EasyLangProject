@@ -401,8 +401,21 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                 if (val instanceof List && i < exprs.size() - 2)
                     list = (List<Object>) val;
             }
+
+            if (op.length() > 1) {
+                Object old = list.get(index);
+                char operation = op.charAt(0);
+                switch (operation) {
+                    case '+' -> value = performAdd(old, value, true);
+                    case '-' -> value = performAdd(old, value, false);
+                    case '*' -> value = performMult(old, value, OPERATOR_MULT);
+                    case '/' -> value = performMult(old, value, OPERATOR_DIVISION);
+                    case '%' -> value = performMult(old, value, OPERATOR_MODULUS);
+                }
+            }
             list.set(index, value);
         }
+
         return id;    // return the id as String
     }
 
@@ -544,6 +557,26 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                 value = (Float)value * -1;
             else if (value instanceof Boolean)
                 value = !(Boolean)value;
+        }
+        return value;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override public Object visitSIGN_EXPR(EasyLangParser.SIGN_EXPRContext ctx) {
+        Object value = visit(ctx.expr());
+        char sign = ctx.getChild(0).getText().charAt(0);
+        if (sign == '-') {
+            if (value instanceof Integer) {
+                value = ((Integer) value) * -1;
+            }else if (value instanceof Float){
+                value = ((Float)value) *-1;
+            }
+
+            //TODO how about strings and other types
         }
         return value;
     }
@@ -810,50 +843,42 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         if (left instanceof Number && right instanceof Number) {
             float op1 = ((Number) left).floatValue();
             float op2 = ((Number) right).floatValue();
-            if (opr.equals("<"))
-                return op1 < op2;
-            else if (opr.equals("<="))
-                return op1 <= op2;
-            else if (opr.equals(">"))
-                return op1 > op2;
-            else
-                return op1 >= op2;
+            return switch (opr) {
+                case "<" -> op1 < op2;
+                case "<=" -> op1 <= op2;
+                case ">" -> op1 > op2;
+                default -> op1 >= op2;
+            };
         } else if (left instanceof String && right instanceof String) {
             String op1 = (String) left;
             String op2 = (String) right;
             int compare = op1.compareTo(op2);
-            if (opr.equals("<"))
-                return compare < 0;
-            else if (opr.equals("<="))
-                return compare <= 0;
-            else if (opr.equals(">"))
-                return compare > 0;
-            else
-                return compare >= 0;
+            return switch (opr) {
+                case "<" -> compare < 0;
+                case "<=" -> compare <= 0;
+                case ">" -> compare > 0;
+                default -> compare >= 0;
+            };
         } else if (left instanceof Boolean && right instanceof Boolean) {
             // compare boolean
             int op1 = (Boolean) left ? 1 : 0;
             int op2 = (Boolean) right ? 1 : 0;
-            if (opr.equals("<"))
-                return op1 < op2;
-            else if (opr.equals("<="))
-                return op1 <= op2;
-            else if (opr.equals(">"))
-                return op1 > op2;
-            else
-                return op1 >= op2;
+            return switch (opr) {
+                case "<" -> op1 < op2;
+                case "<=" -> op1 <= op2;
+                case ">" -> op1 > op2;
+                default -> op1 >= op2;
+            };
         } else if (left instanceof Date && right instanceof Date) {
             Date op1 = (Date) left;
             Date op2 = (Date) right;
             int compare = op1.compareTo(op2);
-            if (opr.equals("<"))
-                return compare < 0;
-            else if (opr.equals("<="))
-                return compare <= 0;
-            else if (opr.equals(">"))
-                return compare > 0;
-            else
-                return compare >= 0;
+            return switch (opr) {
+                case "<" -> compare < 0;
+                case "<=" -> compare <= 0;
+                case ">" -> compare > 0;
+                default -> compare >= 0;
+            };
         }
         return visitChildren(ctx);
     }
@@ -923,9 +948,7 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
             return left;
         Object right = visit(operands.get(1));
         if (left instanceof Boolean && right instanceof Boolean) {
-            boolean op1 = (Boolean) left;
-            boolean op2 = (Boolean) right;
-            return op1 && op2;
+            return right;
         }
         return visitChildren(ctx);
     }
@@ -945,9 +968,7 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
             return left;
         Object right = visit(operands.get(1));
         if (left instanceof Boolean && right instanceof Boolean) {
-            boolean op1 = (Boolean) left;
-            boolean op2 = (Boolean) right;
-            return op1 || op2;
+            return right;
         }
         return visitChildren(ctx);
     }
