@@ -127,6 +127,21 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
     public Object funcCall(String id, List<EasyLangParser.ExprContext> pctx) throws Exception {
         returnValue = null;
         EasyLangParser.FunctionContext ctx = (EasyLangParser.FunctionContext) memory.get(id);
+        if (ctx == null){
+            switch (id){
+                case "capitalize":
+                    return capitalize(pctx);
+                case "read":
+                    return read(pctx);
+                case "write":
+                    return write(pctx);
+                case "grayscale":
+                    return grayscale(pctx);
+            }
+            String message = "function" + id + "not defined";
+            System.out.println(message);
+            throw new Exception(message);
+        }
         EasyLangParser.StatementsContext sctx = ctx.statements();
         List<TerminalNode> vctx = ctx.ID();
         List<Object> params = new ArrayList<>();
@@ -152,6 +167,25 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         visit (sctx);
         localMem = stack.pop();
         return returnValue;
+    }
+
+    private Object capitalize(List<EasyLangParser.ExprContext> pctx) throws Exception {
+        if(pctx.size() == 0)
+            throw new Exception("capitalize: invalid number of parameters");
+        Object value = visit(pctx.get(0));
+        return value.toString().toUpperCase(Locale.ROOT);
+    }
+
+    private Object read(List<EasyLangParser.ExprContext> pctx) {
+        return null;
+    }
+
+    private Object write(List<EasyLangParser.ExprContext> pctx) {
+        return null;
+    }
+
+    private Object grayscale(List<EasyLangParser.ExprContext> pctx) {
+        return null;
     }
 
     /**

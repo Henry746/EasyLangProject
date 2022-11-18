@@ -1,0 +1,4 @@
+{
+caps = capitalize("hello")
+output caps
+}

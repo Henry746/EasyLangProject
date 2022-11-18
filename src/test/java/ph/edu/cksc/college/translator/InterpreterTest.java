@@ -314,6 +314,26 @@ public class InterpreterTest {
     //testOR and testOrFalse
 
     @Test
+    public void testOr() throws IOException {
+        EasyLangParser parser = getParser("1>=10 || 10<=20");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
+        assertTrue(result instanceof Boolean);
+        assertTrue((Boolean) result);
+
+    }
+
+    @Test
+    public void testOrFalse() throws IOException {
+        EasyLangParser parser = getParser("1>=10 || 10>=20");
+        ParseTree tree = parser.expr();
+        Object result = visitor.visit(tree);
+        assertTrue(result instanceof Boolean);
+        assertFalse((Boolean) result);
+
+    }
+
+    @Test
     public void testOutput() throws IOException {
         EasyLangParser parser = getParser("output \"Jomin\"");
         ParseTree tree = parser.statement();

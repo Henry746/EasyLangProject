@@ -14,6 +14,7 @@ public class EasyLangInterpreter {
     public static void main(String[] args) throws IOException {
         if (args.length == 0) {
             System.out.println("Please specify the program source file.");
+            return;
         }
         FileInputStream inputStream = new FileInputStream(args[0]);
         CharStream charStream = CharStreams.fromStream(inputStream, StandardCharsets.UTF_8);
