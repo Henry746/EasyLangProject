@@ -1,4 +1,5 @@
 {
-caps = capitalize("hello")
-output caps
+image = read("colorful-background-2.jpg") //read
+image = hue(image, 0) //hue
+write(image, "Copy.jpg") //write
 }

@@ -23,7 +23,7 @@ public class EasyLangInterpreter {
         EasyLangParser parser = new EasyLangParser(tokens);
         ParseTree tree = parser.program();
         EasyLangTypeChecker typeChecker = new EasyLangTypeChecker();
-        typeChecker.visit(tree);
+        //typeChecker.visit(tree);
         if (!typeChecker.typeInvalid) {
             EasyVisitor visitor = new EasyVisitor();
             visitor.visit(tree);

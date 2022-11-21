@@ -17,10 +17,14 @@ package ph.edu.cksc.college.translator;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * Mini/Simple/Matrix/Easy Language Interpreter formerly via ANTLR AST Walking
@@ -135,6 +139,8 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                     return read(pctx);
                 case "write":
                     return write(pctx);
+                case "hue":
+                    return hue(pctx);
                 case "grayscale":
                     return grayscale(pctx);
             }
@@ -176,12 +182,47 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         return value.toString().toUpperCase(Locale.ROOT);
     }
 
-    private Object read(List<EasyLangParser.ExprContext> pctx) {
+    private Object read(List<EasyLangParser.ExprContext> pctx) throws Exception{
+        if (pctx.size() == 0)
+            throw new Exception("read: invalid number of parameters");
+            Object filename = visit(pctx.get(0));
+            File fin = new File(filename.toString());
+        return ImageIO.read(fin);
+    }
+
+    private Object write(List<EasyLangParser.ExprContext> pctx) throws Exception{
+        if(pctx.size() < 1)
+            throw new Exception("write: Invalid number of parameters");
+        Object image = visit(pctx.get(0));
+        Object filename = visit(pctx.get(1));
+        ImageIO.write((BufferedImage) image, "jpeg", new File(filename.toString()));
         return null;
     }
 
-    private Object write(List<EasyLangParser.ExprContext> pctx) {
-        return null;
+    private Object hue(List<EasyLangParser.ExprContext> pctx) throws Exception{
+        if(pctx.size() < 1)
+            throw new Exception("write: Invalid number of parameters");
+        Object image = visit(pctx.get(0));
+        Object hueDeg = visit(pctx.get(1));
+        float hue = ((Number) hueDeg).floatValue()/360.0f;
+        BufferedImage raw = (BufferedImage) image;
+        int WIDTH = raw.getWidth();
+        int HEIGHT = raw.getHeight();
+        BufferedImage processed = new BufferedImage(WIDTH,HEIGHT,raw.getType());
+        for(int Y=0; Y<HEIGHT;Y++)
+        {
+            for(int X=0;X<WIDTH;X++)
+            {
+                int RGB = raw.getRGB(X,Y);
+                int R = (RGB >> 16) & 0xff;
+                int G = (RGB >> 8) & 0xff;
+                int B = (RGB) & 0xff;
+                float HSV[]=new float[3];
+                Color.RGBtoHSB(R,G,B,HSV);
+                processed.setRGB(X,Y,Color.getHSBColor(hue,HSV[1],HSV[2]).getRGB());
+            }
+        }
+        return processed;
     }
 
     private Object grayscale(List<EasyLangParser.ExprContext> pctx) {
