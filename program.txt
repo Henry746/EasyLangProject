@@ -1,5 +1,9 @@
 {
 image = read("colorful-background-2.jpg") //read
-image = hue(image, 160) //hue
-write(image, "Copy.jpg") //write
+
+imageHueShift = hue(image, 160) //hue
+write(imageHueShift, "imageHueShift.jpg")
+
+imageNegative = negative(image) //negative
+write(imageNegative, "imageNegative.jpg")
 }

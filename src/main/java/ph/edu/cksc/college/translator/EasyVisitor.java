@@ -141,6 +141,8 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                     return write(pctx);
                 case "hue":
                     return hue(pctx);
+                case "negative":
+                    return negative(pctx);
                 case "grayscale":
                     return grayscale(pctx);
             }
@@ -220,6 +222,28 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                 float HSV[]=new float[3];
                 Color.RGBtoHSB(R,G,B,HSV);
                 processed.setRGB(x,y,Color.getHSBColor((HSV[0]+hue)%360,HSV[1],HSV[2]).getRGB());
+            }
+        }
+        return processed;
+    }
+
+    private Object negative(List<EasyLangParser.ExprContext> pctx) throws Exception{
+        if(pctx.size() < 1)
+            throw new Exception("write: Invalid number of parameters");
+        Object image = visit(pctx.get(0));
+        BufferedImage raw = (BufferedImage) image;
+        int width = raw.getWidth();
+        int height = raw.getHeight();
+        BufferedImage processed = new BufferedImage(width,height,raw.getType());
+        for(int y=0; y<height;y++)
+        {
+            for(int x=0;x<width;x++)
+            {
+                int RGB = raw.getRGB(x,y);
+                int R = (RGB >> 16) & 0xff;
+                int G = (RGB >> 8) & 0xff;
+                int B = (RGB) & 0xff;
+                processed.setRGB(x,y,new Color(R*-1+255,G*-1+255,B*-1+255).getRGB());
             }
         }
         return processed;
