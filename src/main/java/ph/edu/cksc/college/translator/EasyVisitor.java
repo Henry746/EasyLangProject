@@ -249,8 +249,28 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         return processed;
     }
 
-    private Object grayscale(List<EasyLangParser.ExprContext> pctx) {
-        return null;
+    private Object grayscale(List<EasyLangParser.ExprContext> pctx) throws Exception{
+        if(pctx.size() < 1)
+            throw new Exception("write: Invalid number of parameters");
+        Object image = visit(pctx.get(0));
+        BufferedImage raw = (BufferedImage) image;
+        int width = raw.getWidth();
+        int height = raw.getHeight();
+        BufferedImage processed = new BufferedImage(width,height,raw.getType());
+        for(int y=0; y<height;y++)
+        {
+            for(int x=0;x<width;x++)
+            {
+                int RGB = raw.getRGB(x,y);
+                int R = (RGB >> 16) & 0xff;
+                int G = (RGB >> 8) & 0xff;
+                int B = (RGB) & 0xff;
+                float HSV[]=new float[3];
+                Color.RGBtoHSB(R,G,B,HSV);
+                processed.setRGB(x,y,Color.getHSBColor(HSV[0],0,HSV[2]).getRGB());
+            }
+        }
+        return processed;
     }
 
     /**
