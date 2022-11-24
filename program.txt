@@ -1,12 +1,15 @@
 {
 image = read("colorful-background-2.jpg") //read
 
-imageHueShift = hue(image, 160) //hue
-write(imageHueShift, "imageHueShift.jpg")
+//imageHueShift = hue(image, 90) //hue
+//write(imageHueShift, "imageHueShift.jpg")
 
-imageNegative = negative(image) //negative
-write(imageNegative, "imageNegative.jpg")
+//imageNegative = negative(image) //negative
+//write(imageNegative, "imageNegative.jpg")
 
-imageGrayscale = grayscale(image) //grayscale
-write(imageGrayscale, "imageGrayscale.jpg")
+//imageGrayscale = grayscale(image) //grayscale
+//write(imageGrayscale, "imageGrayscale.jpg")
+
+imageGaussian = gaussian(image) //gaussian
+write(imageGaussian, "imageGaussian.jpg")
 }
