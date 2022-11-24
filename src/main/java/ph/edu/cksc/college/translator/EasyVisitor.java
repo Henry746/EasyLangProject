@@ -206,20 +206,20 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         Object hueDeg = visit(pctx.get(1));
         float hue = ((Number) hueDeg).floatValue()/360.0f;
         BufferedImage raw = (BufferedImage) image;
-        int WIDTH = raw.getWidth();
-        int HEIGHT = raw.getHeight();
-        BufferedImage processed = new BufferedImage(WIDTH,HEIGHT,raw.getType());
-        for(int Y=0; Y<HEIGHT;Y++)
+        int width = raw.getWidth();
+        int height = raw.getHeight();
+        BufferedImage processed = new BufferedImage(width,height,raw.getType());
+        for(int y=0; y<height;y++)
         {
-            for(int X=0;X<WIDTH;X++)
+            for(int x=0;x<width;x++)
             {
-                int RGB = raw.getRGB(X,Y);
+                int RGB = raw.getRGB(x,y);
                 int R = (RGB >> 16) & 0xff;
                 int G = (RGB >> 8) & 0xff;
                 int B = (RGB) & 0xff;
                 float HSV[]=new float[3];
                 Color.RGBtoHSB(R,G,B,HSV);
-                processed.setRGB(X,Y,Color.getHSBColor(hue,HSV[1],HSV[2]).getRGB());
+                processed.setRGB(x,y,Color.getHSBColor((HSV[0]+hue)%360,HSV[1],HSV[2]).getRGB());
             }
         }
         return processed;

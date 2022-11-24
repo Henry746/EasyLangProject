@@ -1,5 +1,5 @@
 {
 image = read("colorful-background-2.jpg") //read
-image = hue(image, 0) //hue
+image = hue(image, 160) //hue
 write(image, "Copy.jpg") //write
 }
