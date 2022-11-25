@@ -276,50 +276,62 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
 
     private Object gaussian(List<EasyLangParser.ExprContext> pctx) throws Exception{
 
-        if(pctx.size() < 1)
-            throw new Exception("write: Invalid number of parameters");
-        Object image = visit(pctx.get(0));
-        BufferedImage raw = (BufferedImage) image;
+        if(pctx.size() < 3)
+            throw new Exception("blur: Invalid number of parameters");
+        Object imageParam = visit(pctx.get(0));
+        Object filterParam = visit(pctx.get(1));
+        Object filterWidthParam = visit(pctx.get(2));
 
-        final int[] filter = {1, 2, 1, 2, 4, 2, 1, 2, 1};
-        final int filterWidth = 3;
+        int filterWidth = ((Number) filterWidthParam).intValue();
+        List filterList = (List) filterParam;
+        int[] filter = new int[filterList.size()];
+        for (int i = 0; i < filter.length; i++)
+            filter[i] = (int) filterList.get(i);
+        if (filter.length % filterWidth != 0) {
+            throw new IllegalArgumentException("filter contains a incomplete row");
+        }
 
-        int width = raw.getWidth();
-        int height = raw.getHeight();
-        int sum = IntStream.of(filter).sum();
+        BufferedImage image = (BufferedImage)  imageParam;
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+        final int sum = IntStream.of(filter).sum();
 
-//        BufferedImage processed = new BufferedImage(width,height,raw.getType());
-        int[] input = raw.getRGB(0, 0, width, height, null, 0, width);
+        int[] input = image.getRGB(0, 0, width, height, null, 0, width);
+
         int[] output = new int[input.length];
 
-        int pixelIndexOffset = width - filterWidth;
-        int centerOffsetX = filterWidth / 2;
-        int centerOffsetY = filter.length / filterWidth / 2;
+        final int pixelIndexOffset = width - filterWidth;
+        final int centerOffsetX = filterWidth / 2;
+        final int centerOffsetY = filter.length / filterWidth / 2;
 
-        for(int h = height - filter.length / filterWidth + 1, w = width - filterWidth + 1, y = 0; y < h; y++) {
-            for(int x = 0; x < w; x++) {
+        // apply filter
+        for (int h = height - filter.length / filterWidth + 1, w = width - filterWidth + 1, y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
                 int r = 0;
                 int g = 0;
                 int b = 0;
-                for (int filterIndex = 0, pixelIndex = y * width + x; filterIndex < filter.length; pixelIndex += pixelIndexOffset){
+                for (int filterIndex = 0, pixelIndex = y * width + x;
+                     filterIndex < filter.length;
+                     pixelIndex += pixelIndexOffset) {
                     for (int fx = 0; fx < filterWidth; fx++, pixelIndex++, filterIndex++) {
                         int col = input[pixelIndex];
                         int factor = filter[filterIndex];
 
-                        // sum up color channels seperately
+                        // sum up color channels separately
                         r += ((col >>> 16) & 0xFF) * factor;
                         g += ((col >>> 8) & 0xFF) * factor;
                         b += (col & 0xFF) * factor;
                     }
-                    r /= sum;
-                    g /= sum;
-                    b /= sum;
-                    // combine channels with full opacity
-                    output[x + centerOffsetX + (y + centerOffsetY) * width] = (r << 16) | (g << 8) | b | 0xFF000000;
                 }
+                r /= sum;
+                g /= sum;
+                b /= sum;
+                // combine channels with full opacity
+                output[x + centerOffsetX + (y + centerOffsetY) * width] = (r << 16) | (g << 8) | b | 0xFF000000;
             }
         }
-        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
         result.setRGB(0, 0, width, height, output, 0, width);
         return result;
     }
