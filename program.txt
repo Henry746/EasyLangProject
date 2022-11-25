@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 program {
 image = read("image.jpg") //read
+=======
+{
+//image = read("colorful-background-2.jpg") //read
+image = read("caloocan-boy.png") //read
+>>>>>>> fdddd9f227f6ff6aae9abd47b0068b5c34fea12f
 
 //imageHueShift = hue(image, 90) //hue
 //write(imageHueShift, "imageHueShift.jpg")
@@ -10,6 +16,10 @@ image = read("image.jpg") //read
 //imageGrayscale = grayscale(image) //grayscale
 //write(imageGrayscale, "imageGrayscale.jpg")
 
+<<<<<<< HEAD
 imageGaussian = blur(image, {1,2,1,2,4,2,1,2,1}, 3) //gaussian
+=======
+imageGaussian = gaussian(image, {1,2,1,2,4,2,1,2,1}, 3) //gaussian
+>>>>>>> fdddd9f227f6ff6aae9abd47b0068b5c34fea12f
 write(imageGaussian, "imageGaussian.jpg")
 }
