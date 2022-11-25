@@ -26,6 +26,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
+<<<<<<< HEAD
+=======
+
+import static java.lang.Math.exp;
+import static java.lang.Math.sqrt;
+>>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
 
 /**
  * Mini/Simple/Matrix/Easy Language Interpreter formerly via ANTLR AST Walking
@@ -146,8 +152,13 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                     return negative(pctx);
                 case "grayscale":
                     return grayscale(pctx);
+<<<<<<< HEAD
                 case "blur":
                     return blur(pctx);
+=======
+                case "gaussian":
+                    return gaussian(pctx);
+>>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
             }
             String message = "function" + id + "not defined";
             System.out.println(message);
@@ -214,10 +225,8 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         int width = raw.getWidth();
         int height = raw.getHeight();
         BufferedImage processed = new BufferedImage(width,height,raw.getType());
-        for(int y=0; y<height;y++)
-        {
-            for(int x=0;x<width;x++)
-            {
+        for(int y=0; y<height;y++) {
+            for(int x=0;x<width;x++) {
                 int RGB = raw.getRGB(x,y);
                 int R = (RGB >> 16) & 0xff;
                 int G = (RGB >> 8) & 0xff;
@@ -238,10 +247,8 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         int width = raw.getWidth();
         int height = raw.getHeight();
         BufferedImage processed = new BufferedImage(width,height,raw.getType());
-        for(int y=0; y<height;y++)
-        {
-            for(int x=0;x<width;x++)
-            {
+        for(int y=0; y<height;y++) {
+            for(int x=0;x<width;x++) {
                 int RGB = raw.getRGB(x,y);
                 int R = (RGB >> 16) & 0xff;
                 int G = (RGB >> 8) & 0xff;
@@ -260,10 +267,8 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         int width = raw.getWidth();
         int height = raw.getHeight();
         BufferedImage processed = new BufferedImage(width,height,raw.getType());
-        for(int y=0; y<height;y++)
-        {
-            for(int x=0;x<width;x++)
-            {
+        for(int y=0; y<height;y++) {
+            for(int x=0;x<width;x++) {
                 int RGB = raw.getRGB(x,y);
                 int R = (RGB >> 16) & 0xff;
                 int G = (RGB >> 8) & 0xff;
@@ -276,6 +281,7 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         return processed;
     }
 
+<<<<<<< HEAD
     private Object blur(List<EasyLangParser.ExprContext> pctx) throws Exception{
 
         if(pctx.size() < 3)
@@ -315,15 +321,51 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
                 for (int filterIndex = 0, pixelIndex = y * width + x;
                      filterIndex < filter.length;
                      pixelIndex += pixelIndexOffset) {
+=======
+
+    private Object gaussian(List<EasyLangParser.ExprContext> pctx) throws Exception{
+
+        if(pctx.size() < 1)
+            throw new Exception("write: Invalid number of parameters");
+        Object image = visit(pctx.get(0));
+        BufferedImage raw = (BufferedImage) image;
+
+        final int[] filter = {1, 2, 1, 2, 4, 2, 1, 2, 1};
+        final int filterWidth = 3;
+
+        int width = raw.getWidth();
+        int height = raw.getHeight();
+        int sum = IntStream.of(filter).sum();
+
+//        BufferedImage processed = new BufferedImage(width,height,raw.getType());
+        int[] input = raw.getRGB(0, 0, width, height, null, 0, width);
+        int[] output = new int[input.length];
+
+        int pixelIndexOffset = width - filterWidth;
+        int centerOffsetX = filterWidth / 2;
+        int centerOffsetY = filter.length / filterWidth / 2;
+
+        for(int h = height - filter.length / filterWidth + 1, w = width - filterWidth + 1, y = 0; y < h; y++) {
+            for(int x = 0; x < w; x++) {
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                for (int filterIndex = 0, pixelIndex = y * width + x; filterIndex < filter.length; pixelIndex += pixelIndexOffset){
+>>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
                     for (int fx = 0; fx < filterWidth; fx++, pixelIndex++, filterIndex++) {
                         int col = input[pixelIndex];
                         int factor = filter[filterIndex];
 
+<<<<<<< HEAD
                         // sum up color channels separately
+=======
+                        // sum up color channels seperately
+>>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
                         r += ((col >>> 16) & 0xFF) * factor;
                         g += ((col >>> 8) & 0xFF) * factor;
                         b += (col & 0xFF) * factor;
                     }
+<<<<<<< HEAD
                 }
                 r /= sum;
                 g /= sum;
@@ -334,11 +376,27 @@ public class EasyVisitor extends EasyLangBaseVisitor<Object> {
         }
 
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+=======
+                    r /= sum;
+                    g /= sum;
+                    b /= sum;
+                    // combine channels with full opacity
+                    output[x + centerOffsetX + (y + centerOffsetY) * width] = (r << 16) | (g << 8) | b | 0xFF000000;
+                }
+            }
+        }
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+>>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
         result.setRGB(0, 0, width, height, output, 0, width);
         return result;
     }
 
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
     /**
      * Get memory by checking local first before global
      * @param id
