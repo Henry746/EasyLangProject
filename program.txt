@@ -1,5 +1,5 @@
 program {
-image = read("colorful-background-2.jpg") //read
+image = read("image.jpg") //read
 
 //imageHueShift = hue(image, 90) //hue
 //write(imageHueShift, "imageHueShift.jpg")
@@ -7,18 +7,9 @@ image = read("colorful-background-2.jpg") //read
 //imageNegative = negative(image) //negative
 //write(imageNegative, "imageNegative.jpg")
 
-<<<<<<< HEAD
-imageGrayscale = grayscale(image) //grayscale
-write(imageGrayscale, "imageGrayscale.jpg")
-
-imageGaussian = blur(image,{1,2,1,2,4,2,1,2,1}, 3) // gaussian blur
-write(imageGaussian, "imageGaussian.jpg")
-
-=======
 //imageGrayscale = grayscale(image) //grayscale
 //write(imageGrayscale, "imageGrayscale.jpg")
 
-imageGaussian = gaussian(image) //gaussian
+imageGaussian = blur(image, {1,2,1,2,4,2,1,2,1}, 3) //gaussian
 write(imageGaussian, "imageGaussian.jpg")
->>>>>>> 97f08dded627eec776f05e799cb843b7bdedf8df
 }
